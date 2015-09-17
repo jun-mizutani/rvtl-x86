@@ -1,0 +1,47 @@
+#!/usr/bin/rvtl
+1000 : 行番号を1000から順に付け直す
+1010 : 例えば file.vtl を _file.vtl として変換
+1020 :   rvtl renum_sh.vtl - file.vtl
+1030 :   または ./renum_sh.vtl - file.vtl
+1040 :
+1050   B=&
+1060   S=^str01+8 : ラベルの次の行の内容を取得
+1070   !=^CopyString
+1080   B(J)=' ' J=J+1
+1090   !=^CopyArg
+1100   B(J)=' ' J=J+1
+1110   S=^str02+8 : ラベルの次の行の内容を取得
+1120   !=^CopyString
+1130   B(J)=' ' J=J+1
+1140   B(J)='_' J=J+1
+1150   !=^CopyArg
+1160   $*=B /    : 実行するコマンドを表示
+1170 : 文字列表示の別の方法
+1180   I=0
+1190   @ ;=B(I)<>0 $=B(I) I=I+1 @=(B(I)=0) /
+1200   ,*=B      : 実際に実行
+1210 :
+1220   #=-1
+1230 : ラベルの次の行にデータを置く
+1240 ^str01
+1250 /usr/bin/rvtl renum.vtl
+1260 ^str02
+1270  run_renum.vtl >
+1280 : S から B に文字列をコピー
+1290 ^CopyString
+1300   I=0
+1310   @
+1320     ;=S(I)<>0 B(J)=S(I) J=J+1 I=I+1
+1330   @=(S(I)=0)
+1340 ]
+1350 : コマンドライン引数を B にコピー
+1360 ^CopyArg
+1370   [=0      : range check off
+1380   A=\0 I=0
+1390   @        : copy from \0 to B
+1400     ;=A(I)<>0 B(J)=A(I) I=I+1 J=J+1
+1410   @=(A(I)=0)
+1420   [=1      : range check on
+1430 ]
+#=1
+~

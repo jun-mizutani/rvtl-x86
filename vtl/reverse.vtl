@@ -1,0 +1,16 @@
+1000 : -------------------------------------------
+1010 :  Reverse Screen
+1020 :   2003/10/21
+1030 : -------------------------------------------
+1040 |fbo : Open Frame Buffer Device
+1050 [=0  : range check OFF
+1060 Depth=g[6]
+1070 Length=g[0]*g[1]-1
+1080 Half=Length/2-1
+1090 I=0,Half
+1100     ;=Depth=16 F=f{I} f{I}=f{Length-I} f{Length-I}=F
+1110     ;=Depth=32 F=f[I] f[I]=f[Length-I] f[Length-I]=F
+1120 @=I+1
+1130 |fbc
+1140 [=1
+1150 #=-1

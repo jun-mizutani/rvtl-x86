@@ -1,0 +1,66 @@
+100 : -------------------------------------------
+110 : FrameBuffer Information
+120 :   2002/06/24
+130 : -------------------------------------------
+140      |fbo     : open frame buffer
+150      [=0      : Range check off
+160 :
+170      !=^FrameBInfo
+180 :
+190      |fbc     : close frame buffer
+200     "END" #=-1
+210 : -------------------------------------------
+10000 ^FrameBInfo
+10010    "Frame Buffer Virtual Screen Information" /
+10020    " [ 0]  x resolution    : " ?=g[0]  /
+10030    " [ 1]  y resolution    : " ?=g[1]  /
+10040    " [ 2]  x res virtual   : " ?=g[2]  /
+10050    " [ 3]  y res virtual   : " ?=g[3]  /
+10060    " [ 4]  x offset        : " ?=g[4]  /
+10070    " [ 5]  y offset        : " ?=g[5]  /
+10080    " [ 6]  bits/pixel      : " ?=g[6]  /
+10090    " [ 7]  grayscale       : " ?=g[7]  /
+10100    " [ 8]  RED    offset   : " ?=g[8]  /
+10110    " [ 9]         length   : " ?=g[9]  /
+10120    " [10]         msb_right: " ?=g[10] /
+10130    " [11]  GREEN  offset   : " ?=g[11] /
+10140    " [12]         length   : " ?=g[12] /
+10150    " [13]         msb_right: " ?=g[13] /
+10160    " [14]  BLUE   offset   : " ?=g[14] /
+10170    " [15]         length   : " ?=g[15] /
+10180    " [16]         msb_right: " ?=g[16] /
+10190    " [17]  TRANSP offset   : " ?=g[17] /
+10200    " [18]         length   : " ?=g[18] /
+10210    " [19]         msb_right: " ?=g[19] /
+10220    " [20]  nonstd          : " ?=g[20] /
+10230    " [21]  activate        : " ?=g[21] /
+10240    " [22]  height          : " ?=g[22] /
+10250    " [23]  width           : " ?=g[23] /
+10260    " [24]  accel_flags     : " ?=g[24] /
+10270    " [25]  pixclock        : " ?=g[25] /
+10280    " [26]  left margin     : " ?=g[26] /
+10290    " [27]  right margin    : " ?=g[27] /
+10300    " [28]  upper margin    : " ?=g[28] /
+10310    " [29]  lower margin    : " ?=g[29] /
+10320    " [30]  hsync length    : " ?=g[30] /
+10330    " [31]  vsync length    : " ?=g[31] /
+10340    " [32]  sync            : " ?=g[32] /
+10350    " [33]  vmode           : " ?=g[33] /
+10360    "Frame Buffer Physical Screen Information" /
+10370    " [40]  ID string               : "
+10380    I=160,175 ;=g(I)<>0 $=g(I)
+10390    @=I+1 /
+10400    " [44]  frame buffer mem start  : $" ??=g[44] /
+10410    " [45]  frame buffer mem length : " ?=g[45]  /
+10420    " [46]  frame buffer type       : " ?=g[46]  /
+10430    " [47]  interleave              : " ?=g[47]  /
+10440    " [48]  frame buffer visual     : " ?=g[48]  /
+10450    " [49]  x pan step              : " ?=g{99}  /
+10460    " [49]  y pan step              : " ?=g{100} /
+10470    " [50]  y wrap step             : " ?=g{101} /
+10480    " [51]  line length (bytes)     : " ?=g[51] /
+10490    " [52]  Memory Mapped I/O start : " ?=g[52] /
+10500    " [53]  Memory Mapped I/O length: " ?=g[53] /
+10510    " [54]  acceleration type       : " ?=g[54] /
+10520    /
+10530 ]

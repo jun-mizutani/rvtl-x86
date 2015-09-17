@@ -1,0 +1,18 @@
+#!/usr/bin/rvtl
+1000 : 2003/11/06
+1010 : 行番号を1000から順に付け直す
+1020 : 例えば file.vtl を _file.vtl として変換
+1030 :   rvtl renum_do.vtl - file.vtl
+1040 :   または ./renum_do.vtl - file.vtl
+1050 :
+1060   B=& J=0
+1070   B*="/usr/bin/rvtl " J=%
+1080   M=B+J [=0 M*=\0 [=1 J=J+%
+1090   M=B+J M*=" renum.vtl run_renum.vtl > _" J=J+%
+1100   M=B+J [=0 M*=\0 [=1 J=J+%
+1110   $*=B /    : 実行するコマンドを表示
+1120   ,*=B      : 実際に実行
+1130 :
+1140   #=-1
+#=1
+~

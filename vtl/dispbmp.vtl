@@ -1,0 +1,106 @@
+1000 :-------------------------
+1010 : BitMap を表示する
+1020 :
+1030 : 2003/11/04
+1040 :-------------------------
+1050   d=& m=d+64 B=&+1024 {=B
+1060   "file ? "
+1070   m=$$
+1080   |fbo  [=0
+1090   d[4]=g[51] d[5]=g[6]
+1100   d[0]=f
+1110   :
+1120   )*=m
+1130   "load  " $*=m
+1140   E=} " " ?=E-B " bytes" /
+1150   ;=B(0)<>'B' #=^EXIT
+1160   ;=B(1)<>'M' #=^EXIT
+1170  : 4バイトアラインをまたがないため
+1180   FileSize=(B{2}<<16)+B{1}
+1190   Offset=(B{6}<<16)+B{5}
+1200   SizeHeader=(B{8}<<16)+B{7}
+1210   Width=(B{10}<<16)+B{9}
+1220   Height=(B{12}<<16)+B{11}
+1230   Planes=B{13}
+1240   CountBit=B{14}
+1250   compression=(B{16}<<16)+B{15}
+1260   ImageSize=(B{18}<<16)+B{17}
+1270   XM=(B{20}<<16)+B{19}
+1280   YM=(B{22}<<16)+B{21}
+1290   Q=B+54  : RGBQUAD
+1300   !=^BmpInfo
+1310   ;=CountBit=1  !=^Color2
+1320   ;=CountBit=4  !=^Color16
+1330   ;=CountBit=8  !=^Color256
+1340   ;=CountBit=24 !=^ColorFull
+1350 :
+1360   [=1
+1370 ^EXIT
+1380   #=-1
+1390 :-------------------------8bit bmp
+1400 ^Color256
+1410   B=B+Offset
+1420   y=0,Height-1
+1430     x=0,Width-1
+1440       P=B(y*Width+x)
+1450       b=Q(P*4) g=Q(P*4+1) r=Q(P*4+2)
+1460       p=((r>>3)<<11)+((g>>2)<<5)+(b>>3)
+1470       d[3]=p d[1]=x d[2]=Height-1-y |fbd
+1480     @=x+1
+1490   @=y+1
+1500   ]
+1510 :-------------------------4bit bmp
+1520 ^Color16
+1530   B=B+Offset
+1540   y=0,Height-1
+1550     x=0,Width-1
+1560       i=y*Width+x
+1570       P=B(i/2)
+1580       P=(P>>((1-%)*4))&$F
+1590       b=Q(P*4) g=Q(P*4+1) r=Q(P*4+2)
+1600       p=((r>>3)<<11)+((g>>2)<<5)+(b>>3)
+1610       d[3]=p d[1]=x d[2]=Height-1-y |fbd
+1620     @=x+1
+1630   @=y+1
+1640   ]
+1650 :-------------------------2bit bmp
+1660 ^Color2
+1670   B=B+Offset
+1680   y=0,Height-1
+1690     x=0,Width-1
+1700       i=y*Width+x
+1710       P=B(i/8)
+1720       P=(P>>(7-%))&1
+1730       r=Q(P*4) g=Q(P*4+1) b=Q(P*4+2)
+1740       p=((r>>3)<<11)+((g>>2)<<5)+(b>>3)
+1750       d[3]=p d[1]=x d[2]=Height-1-y |fbd
+1760     @=x+1
+1770   @=y+1
+1780   ]
+1790 :-------------------------24bit bmp
+1800 ^ColorFull
+1810   B=B+Offset
+1820   y=0,Height-1
+1830     x=0,Width-1
+1840       P=B+((y*Width+x)*3)
+1850       b=P(0) g=P(1) r=P(2)
+1860       p=((r>>3)<<11)+((g>>2)<<5)+(b>>3)
+1870       d[3]=p d[1]=x d[2]=Height-1-y |fbd
+1880     @=x+1
+1890   @=y+1
+1900   ]
+1910 :
+1920 :------------------------- information
+1930 ^BmpInfo
+1940   "File Size    " ?=FileSize /
+1950   "Offset       " ?=Offset /
+1960   "Header Size  " ?=SizeHeader /
+1970   "Width        " ?=Width /
+1980   "Height       " ?=Heught /
+1990   "Planes       " ?=Planes /
+2000   "BitCount     " ?=CountBit /
+2010   "Compression  " ?=compression /
+2020   "Image Size   " ?=ImageSize /
+2030   "X pix/meter  " ?=XM /
+2040   "Y pix/meter  " ?=YM /
+2050  ]
