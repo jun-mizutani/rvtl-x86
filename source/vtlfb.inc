@@ -1,7 +1,7 @@
 ;-------------------------------------------------------------------------
 ;  Return of the Very Tiny Language
-;  version : 3.02  2005/06/04
-;  Copyright (C) 2002-2005 Jun Mizutani <mizutani.jun@nifty.ne.jp>
+;  version : 3.05  2015/09/25
+;  Copyright (C) 2002-2015 Jun Mizutani <mizutani.jun@nifty.ne.jp>
 ;
 ;  file : vtlfb.inc
 ;         frame buffer extention
@@ -112,13 +112,13 @@ StartPoint:
                 cmp     dl, 32
                 jne     .bit_16
                 shl     ebx, 1              ; 32bit/pixel
-                add     eax, ebx            ; Y * width + X
+                add     eax, ebx            ; Y * width + X*4
                 add     edi, eax            ; edi := addr + eax
                 pop     ebx
                 stc
                 ret
 
-    .bit_16:    add     eax, ebx            ; Y * width + X
+    .bit_16:    add     eax, ebx            ; Y * width + X*2
                 add     edi, eax            ; edi := addr + eax
                 pop     ebx
                 clc
@@ -131,7 +131,7 @@ StartPoint:
 ; l[3] = x2     [ebp + 12]      ; l[4] = y2     [ebp + 16]
 ; l[5] = color  [ebp + 20]
 ; l[6] = ScrX   [ebp + 24]
-; l[7] = Depth  [ebp + 28]      ; 1ピクセルのバイト数
+; l[7] = Depth  [ebp + 28]      ; 1ピクセルのビット数
 ; l[8] = incr1  [ebp + 32]
 ; l[9] = incr2  [ebp + 36]
 
@@ -310,7 +310,7 @@ LineDraw:
 ;   d[2] = y      [ebp +  8] Y座標
 ;   d[3] = Color  [ebp + 12] 色
 ;   d[4] = ScrX   [ebp + 16] 転送先X方向のバイト数
-;   d[5] = Depth  [ebp + 20] 1ピクセルのバイト数
+;   d[5] = Depth  [ebp + 20] 1ピクセルのビット数
 Dot:
                 pusha
                 xor     ebx, ebx
@@ -331,7 +331,8 @@ Dot:
                 mov     [edi], bx           ; 16bit/pixel
                 popa
                 ret
-    .depth32:   mov     [edi], ebx          ; 32bit/pixel
+    .depth32:   add     edi, edx            ; fb + X*2 + Y*ScrX + X*2
+                mov     [edi], ebx          ; 32bit/pixel
                 popa
                 ret
 
@@ -341,7 +342,7 @@ Dot:
 ; return
 ;  eax = depth
 ;  ebx = ScrX
-;  ecx = ScrX
+;  ecx = X * 2
 ;  edx = PatH
 ;  edi = 転送先アドレス
 ;  esi = パターンの格納アドレス先頭
@@ -359,8 +360,9 @@ PatternSize:
                 add     eax, edx            ; X * 2 + Y * ScrX
                 add     edi, eax            ; edi := addr + eax
                 mov     ebx, ecx            ; ebx := Screen Width
+                mov     ecx, edx            ; ecx := X*2
                 mov     edx, [ebp + 16]     ; PatH
-                mov     al,  [ebp + 28]     ; Depth
+                mov     eax, [ebp + 28]     ; Depth
                 ret
 
 ;---------------------------------------------------------------------------
@@ -372,7 +374,7 @@ PatternSize:
 ;   p[4] = PatH   [ebp + 16] パターンの高さ
 ;   p[5] = mem    [ebp + 20] パターンの格納アドレス
 ;   p[6] = ScrX   [ebp + 24] 転送先X方向のバイト数
-;   p[7] = Depth  [ebp + 28] 1ピクセルのバイト数
+;   p[7] = Depth  [ebp + 28] 1ピクセルのビット数
 
 PatternTransfer:
                 pusha
@@ -389,7 +391,7 @@ PatternTransfer:
                 dec     edx
                 jne     .loop16
                 jmp     short .exit
-    .pat32:     add     edi, edx            ; edi=addr + Y*ScrX + X*4
+    .pat32:     add     edi, ecx            ; edi=addr + Y*ScrX + X*4
     .loop32:    mov     ecx, [ebp + 12]     ; PatW
                 push    edi
                 rep     movsd
@@ -409,7 +411,7 @@ PatternTransfer:
 ;   t[4] = PatH   [ebp + 16] パターンの高さ
 ;   t[5] = mem    [ebp + 20] パターンの格納アドレス先頭
 ;   t[6] = ScrX   [ebp + 24] 転送先のX方向のバイト数
-;   t[7] = Depth  [ebp + 28] 1ピクセルのバイト数
+;   t[7] = Depth  [ebp + 28] 1ピクセルのビット数
 ;   t[8] = x2     [ebp + 32] 転送元のX座標
 ;   t[9] = y2     [ebp + 36] 転送元のY座標
 ;   t[10]= ScrX2  [ebp + 40] 転送元のX方向のバイト数
@@ -420,7 +422,8 @@ PatternTransfer2:
                 mov     bl, 't'             ; 引数
                 call    PatternSize
                 push    eax                 ; depth
-                push    edx                 ; PatH
+                push    ecx                 ; X*2
+                push    ebx                 ; ScrX
                 mov     ecx, [ebp + 40]     ; ScrX2
                 mov     eax, [ebp + 36]     ; Y2
                 imul    ecx                 ; Y2 * ScrX2
@@ -428,7 +431,8 @@ PatternTransfer2:
                 shl     edx, 1              ; X2 * 2
                 add     eax, edx            ; X2 * 2 + Y2 * ScrX2
                 add     esi, eax            ; esi := mem + eax
-                pop     edx                 ; PatH
+                pop     ebx                 ; ScrX
+                pop     ecx                 ; X*2
                 pop     eax                 ; depth
                 cmp     al, 32
                 je      .pat32
@@ -444,7 +448,10 @@ PatternTransfer2:
                 dec     edx
                 jne     .loop16
                 jmp     short .exit
-    .pat32:     add     edi, edx            ; edi=addr + Y*ScrX + X*4
+
+    .pat32:     add     esi, edx            ; esi=mem + Y2*ScrX2 + X2*4
+                add     edi, ecx            ; edi=addr + Y*ScrX + X*4
+                mov     edx, [ebp + 16]     ; PatH
                 mov     eax, [ebp + 40]     ; ScrX2
     .loop32:    mov     ecx, [ebp + 12]     ; PatW
                 push    edi
@@ -468,7 +475,7 @@ PatternTransfer2:
 ;   q[4] = PatH   [ebp + 16] パターンの高さ
 ;   q[5] = mem    [ebp + 20] パターンの格納アドレス
 ;   q[6] = ScrX   [ebp + 24] X方向のバイト数
-;   q[7] = Depth  [ebp + 28] 1ピクセルのバイト数
+;   q[7] = Depth  [ebp + 28] 1ピクセルのビット数
 ;   q[8] = Mask   [ebp + 32] マスク色
 MPatternTransfer:
                 pusha
@@ -494,7 +501,7 @@ MPatternTransfer:
                 jne     .loop16
                 jmp     short .exit
 
-    .pat32:     add     edi, edx            ; edi=addr + Y*ScrX + X*4
+    .pat32:     add     edi, ecx            ; edi=addr + Y*ScrX + X*4
     .loop32:    mov     ecx, [ebp + 12]     ; PatW
                 push    edi
     .l32b       mov     eax, [esi]
@@ -520,7 +527,7 @@ MPatternTransfer:
 ;   r[4] = PatH   [ebp + 16] パターンの高さ
 ;   r[5] = Color  [ebp + 20] パターンの色
 ;   r[6] = ScrX   [ebp + 24] X方向のバイト数
-;   r[7] = Depth  [ebp + 28] 1ピクセルのバイト数
+;   r[7] = Depth  [ebp + 28] 1ピクセルのビット数
 
 PatternFill:
                 pusha
@@ -538,8 +545,9 @@ PatternFill:
                 dec     edx
                 jne     .loop16
                 jmp     short .exit
+
     .pat32:     mov     eax, esi
-                add     edi, edx            ; edi=addr + Y*ScrX + X*4
+                add     edi, ecx            ; edi=addr + Y*ScrX + X*4
     .loop32:    mov     ecx, [ebp + 12]     ; PatW
                 push    edi
                 rep     stosd

@@ -1,7 +1,7 @@
 ;-------------------------------------------------------------------------
 ;  Return of the Very Tiny Language
 ;  file : rvtl.asm
-;  version : 3.05  2015/09/07
+;  version : 3.05  2015/10/05
 ;  Copyright (C) 2002-2015 Jun Mizutani <mizutani.jun@nifty.ne.jp>
 ;  RVTL may be copied under the terms of the GNU General Public License.
 ;
@@ -3663,7 +3663,7 @@ section .data
   cginame       db   'wltvr', 0
 
 %ifndef SMALL_VTL
-start_msg       db   'RVTL v.3.05 2015/09/07'
+start_msg       db   'RVTL v.3.05 2015/10/05'
                 db   ', Copyright 2002-2015 Jun Mizutani', 10,
                 db   'RVTL may be copied under the terms of the GNU',
                 db   ' General Public License.', 10
