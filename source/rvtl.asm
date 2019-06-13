@@ -3676,7 +3676,7 @@ start_msg       db   'RVTL v.3.05 2015/10/05'
 initvtl         db   '/etc/init.vtl',0
 prompt1         db   10,'<',0
 prompt2         db   '> ',0
-equal_err       db   10,'= reqiured.',0
+equal_err       db   10,'= required.',0
 syntaxerr       db   10,'Syntax error! at line ', 0
 stkunder        db   10,'Stack Underflow!', 10, 0
 stkover         db   10,'Stack Overflow!', 10, 0
